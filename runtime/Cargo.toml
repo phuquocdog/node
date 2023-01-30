@@ -58,7 +58,6 @@ std = [
     'pallet-beefy-mmr/std',
     'pallet-im-online/std',
     'pallet-mmr/std',
-    'pallet-mmr-primitives/std',
     'pallet-session/std',
     'pallet-uniques/std',
     'sp-staking/std',
@@ -69,6 +68,8 @@ std = [
     'pallet-octopus-appchain/std',
     'pallet-octopus-lpos/std',
     'pallet-octopus-upward-messages/std',
+    'pallet-octopus-bridge/std',
+    'sp-io/std',
     # Local Pallet
     'pallet-currency/std'
 
@@ -114,7 +115,7 @@ sp-session = { git = 'https://github.com/paritytech/substrate.git', branch = 'po
 sp-std = { git = 'https://github.com/paritytech/substrate.git', branch = 'polkadot-v0.9.30', default-features = false }
 sp-transaction-pool = { git = 'https://github.com/paritytech/substrate.git', branch = 'polkadot-v0.9.30', default-features = false }
 sp-version = { git = 'https://github.com/paritytech/substrate.git', branch = 'polkadot-v0.9.30', default-features = false }
-
+sp-io = { version = "6.0.0", default-features = false, git = "https://github.com/paritytech/substrate.git", branch = "polkadot-v0.9.30" }
 static_assertions = '1.1.0'
 log = { version = '0.4.14', default-features = false }
 
@@ -125,8 +126,7 @@ pallet-beefy = { version = '4.0.0-dev',git = 'https://github.com/paritytech/subs
 pallet-beefy-mmr = { version = '4.0.0-dev', git = 'https://github.com/paritytech/substrate.git', branch = 'polkadot-v0.9.30', default-features = false }
 pallet-im-online = { version = '4.0.0-dev',git = 'https://github.com/paritytech/substrate.git', branch = 'polkadot-v0.9.30', default-features = false }
 pallet-mmr = { version = '4.0.0-dev',git = 'https://github.com/paritytech/substrate.git', branch = 'polkadot-v0.9.30', default-features = false }
-pallet-mmr-primitives = { version = '4.0.0-dev',git = 'https://github.com/paritytech/substrate.git', branch = 'polkadot-v0.9.30', default-features = false }
-pallet-session = { version = '4.0.0-dev',git = 'https://github.com/paritytech/substrate.git', branch = 'polkadot-v0.9.30', default-features = false }
+pallet-session = { features = [ "historical" ], version = '4.0.0-dev',git = 'https://github.com/paritytech/substrate.git', branch = 'polkadot-v0.9.30', default-features = false }
 pallet-uniques = { version = '4.0.0-dev',git = 'https://github.com/paritytech/substrate.git', branch = 'polkadot-v0.9.30', default-features = false }
 sp-staking = { version = '4.0.0-dev',git = 'https://github.com/paritytech/substrate.git', branch = 'polkadot-v0.9.30', default-features = false }
 # Contracts specific packages
@@ -136,7 +136,7 @@ pallet-randomness-collective-flip = { version = '4.0.0-dev', git = 'https://gith
 #pallet-contracts-rpc = { git = 'https://github.com/paritytech/substrate.git', branch = 'polkadot-v0.9.30', default-features = false }
 pallet-contracts-rpc-runtime-api = { version = '4.0.0-dev', git = "https://github.com/paritytech/substrate", branch = 'polkadot-v0.9.30', default-features = false }
 
-pallet-octopus-appchain = { git = 'https://github.com/octopus-network/octopus-pallets.git', branch = 'release-v0.9.18', default-features = false }
-pallet-octopus-lpos = { git = 'https://github.com/octopus-network/octopus-pallets.git', branch = 'release-v0.9.18', default-features = false }
-pallet-octopus-upward-messages = { git = 'https://github.com/octopus-network/octopus-pallets.git', branch = 'release-v0.9.18', default-features = false }
-
+pallet-octopus-appchain = { git = 'https://github.com/octopus-network/octopus-pallets.git', branch = 'main', default-features = false }
+pallet-octopus-lpos = { git = 'https://github.com/octopus-network/octopus-pallets.git', branch = 'main', default-features = false }
+pallet-octopus-upward-messages = { git = 'https://github.com/octopus-network/octopus-pallets.git', branch = 'main', default-features = false }
+pallet-octopus-bridge = { git = "https://github.com/octopus-network/octopus-pallets.git", default-features = false, branch = "main" }
