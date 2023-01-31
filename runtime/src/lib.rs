@@ -1058,18 +1058,6 @@ impl_runtime_apis! {
             Contracts::get_storage(address, key)
         }
     }
-    impl pallet_posts_runtime_api::PostsApi<Block, AccountId, BlockNumber> for Runtime {
-        fn get_next_post_id() -> u128 {
-            Posts::get_next_post_id()
-        }
-        fn get_feed(
-            account: AccountId,
-            offset: u64,
-            limit: u16
-        ) -> Vec<pallet_posts::rpc::FlatPost<AccountId, BlockNumber>>{
-            Posts::get_feed(account, offset, limit)
-        }
-    }
 
     #[cfg(feature = "runtime-benchmarks")]
     impl frame_benchmarking::Benchmark<Block> for Runtime {

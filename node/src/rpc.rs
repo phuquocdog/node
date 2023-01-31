@@ -126,7 +126,6 @@ where
     C::Api: pallet_transaction_payment_rpc::TransactionPaymentRuntimeApi<Block, Balance>,
     C::Api: BabeApi<Block>,
     C::Api: BlockBuilder<Block>,
-    C::Api: pallet_posts_rpc::PostsRuntimeApi<Block, AccountId, BlockNumber>,
     P: TransactionPool + 'static,
     SC: SelectChain<Block> + 'static,
     B: sc_client_api::Backend<Block> + Send + Sync + 'static,
@@ -134,7 +133,6 @@ where
 {
     use pallet_contracts_rpc::{Contracts, ContractsApi};
     use pallet_mmr_rpc::{Mmr, MmrApi};
-    use pallet_posts_rpc::{Posts, PostsApi};
     use pallet_transaction_payment_rpc::{TransactionPayment, TransactionPaymentApi};
     use substrate_frame_rpc_system::{FullSystem, SystemApi};
 
@@ -197,8 +195,6 @@ where
 
     // Contracts RPC API extension
     io.extend_with(ContractsApi::to_delegate(Contracts::new(client.clone())));
-
-    io.extend_with(PostsApi::to_delegate(Posts::new(client.clone())));
 
     io.extend_with(sc_sync_state_rpc::SyncStateRpcApi::to_delegate(
         sc_sync_state_rpc::SyncStateRpcHandler::new(
