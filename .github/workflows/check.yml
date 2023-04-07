@@ -20,5 +20,15 @@ jobs:
       run: rustup default nightly-2023-01-01 && rustup target add wasm32-unknown-unknown --toolchain nightly-2023-01-01
     - name: Build
       run: cargo build --verbose
-    - name: Run tests
-      run: cargo test --verbose
+    test1:
+      needs: build
+      runs-on: ubuntu-latest
+      steps:
+        - name: Test1
+          run: cargo test --verbose
+    test2:
+      needs: build
+      runs-on: ubuntu-latest
+      steps:
+        - name: Run tests expensive
+          run: cargo test -- --ignored --verbose
