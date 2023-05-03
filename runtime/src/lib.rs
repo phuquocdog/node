@@ -329,8 +329,11 @@ impl pallet_babe::Config for Runtime {
         pallet_babe::AuthorityId,
     )>>::IdentificationTuple;
 
-    type HandleEquivocation =
-        pallet_babe::EquivocationHandler<Self::KeyOwnerIdentification, (), ReportLongevity>;
+    type HandleEquivocation = pallet_babe::EquivocationHandler<
+        Self::KeyOwnerIdentification,
+        pallet_octopus_lpos::FilterHistoricalOffences<OctopusLpos, Offences>,
+        ReportLongevity,
+    >;
 
     type WeightInfo = ();
     type MaxAuthorities = MaxAuthorities;
@@ -350,8 +353,11 @@ impl pallet_grandpa::Config for Runtime {
         GrandpaId,
     )>>::IdentificationTuple;
 
-    type HandleEquivocation =
-        pallet_grandpa::EquivocationHandler<Self::KeyOwnerIdentification, (), ReportLongevity>;
+    type HandleEquivocation = pallet_grandpa::EquivocationHandler<
+        Self::KeyOwnerIdentification,
+        pallet_octopus_lpos::FilterHistoricalOffences<OctopusLpos, Offences>,
+        ReportLongevity,
+    >;
 
     type WeightInfo = ();
     type MaxAuthorities = MaxAuthorities;
@@ -511,7 +517,8 @@ impl pallet_im_online::Config for Runtime {
     type Event = Event;
     type NextSessionRotation = Babe;
     type ValidatorSet = Historical;
-    type ReportUnresponsiveness = ();
+    type ReportUnresponsiveness =
+        pallet_octopus_lpos::FilterHistoricalOffences<OctopusLpos, Offences>;
     type UnsignedPriority = ImOnlineUnsignedPriority;
     type WeightInfo = pallet_im_online::weights::SubstrateWeight<Runtime>;
     type MaxKeys = MaxKeys;
@@ -579,7 +586,8 @@ parameter_types! {
 impl pallet_beefy_mmr::Config for Runtime {
     type LeafVersion = LeafVersion;
     type BeefyAuthorityToMerkleLeaf = pallet_beefy_mmr::BeefyEcdsaToEthereum;
-    type ParachainHeads = ();
+    type LeafExtra = Vec<u8>;
+    type BeefyDataProvider = ();
 }
 
 pub struct OctopusAppCrypto;
@@ -587,9 +595,33 @@ pub struct OctopusAppCrypto;
 impl frame_system::offchain::AppCrypto<<Signature as Verify>::Signer, Signature>
     for OctopusAppCrypto
 {
-    type RuntimeAppPublic = pallet_octopus_appchain::AuthorityId;
+    type RuntimeAppPublic = pallet_octopus_appchain::sr25519::AuthorityId;
     type GenericSignature = sp_core::sr25519::Signature;
     type GenericPublic = sp_core::sr25519::Public;
+}
+
+parameter_types! {
+    pub const NativeTokenDecimals: u128 = 1_000_000_000_000_000_000;
+    pub const FeeTh: u64 = 300;
+}
+
+impl pallet_octopus_bridge::Config for Runtime {
+    type RuntimeEvent = RuntimeEvent;
+    type PalletId = OctopusPalletId;
+    type Currency = Balances;
+    type AppchainInterface = OctopusAppchain;
+    type UpwardMessagesInterface = OctopusUpwardMessages;
+    type AssetIdByTokenId = OctopusBridge;
+    type AssetId = AssetId;
+    type AssetBalance = AssetBalance;
+    type Fungibles = OctopusAssets;
+    type CollectionId = CollectionId;
+    type ItemId = ItemId;
+    type Nonfungibles = OctopusUniques;
+    type Convertor = ();
+    type NativeTokenDecimals = NativeTokenDecimals;
+    type Threshold = FeeTh;
+    type WeightInfo = pallet_octopus_bridge::weights::SubstrateWeight<Runtime>;
 }
 
 parameter_types! {
@@ -601,53 +633,46 @@ parameter_types! {
 }
 
 impl pallet_octopus_appchain::Config for Runtime {
-    type AuthorityId = OctopusAppCrypto;
-    type Event = Event;
-    type Call = Call;
-    type PalletId = OctopusAppchainPalletId;
+    type AuthorityId = pallet_octopus_appchain::sr25519::AuthorityId;
+    type AppCrypto = OctopusAppCrypto;
+    type RuntimeEvent = RuntimeEvent;
+    type RuntimeCall = RuntimeCall;
+    type BridgeInterface = OctopusBridge;
     type LposInterface = OctopusLpos;
     type UpwardMessagesInterface = OctopusUpwardMessages;
-    type ClassId = ClassId;
-    type InstanceId = InstanceId;
-    type Uniques = OctopusUniques;
-    type Convertor = ();
-    type Currency = Balances;
-    type Assets = OctopusAssets;
-    type AssetBalance = AssetBalance;
-    type AssetId = AssetId;
-    type AssetIdByName = OctopusAppchain;
     type GracePeriod = GracePeriod;
     type UnsignedPriority = UnsignedPriority;
+    type MaxValidators = MaxAuthorities;
     type RequestEventLimit = RequestEventLimit;
     type WeightInfo = pallet_octopus_appchain::weights::SubstrateWeight<Runtime>;
 }
 
 parameter_types! {
     pub const SessionsPerEra: sp_staking::SessionIndex = 6;
-    pub const BondingDuration: pallet_octopus_lpos::EraIndex = 24 * 28;
-    pub const BlocksPerEra: u32 = EPOCH_DURATION_IN_BLOCKS * 6;
+    pub const BondingDuration: pallet_octopus_lpos::EraIndex = 24 * 21;
 }
 
 impl pallet_octopus_lpos::Config for Runtime {
     type Currency = Balances;
     type UnixTime = Timestamp;
-    type Event = Event;
-    type Reward = (); // rewards are minted from the void
+    type RuntimeEvent = RuntimeEvent;
     type SessionsPerEra = SessionsPerEra;
     type BondingDuration = BondingDuration;
-    type BlocksPerEra = BlocksPerEra;
     type SessionInterface = Self;
     type AppchainInterface = OctopusAppchain;
     type UpwardMessagesInterface = OctopusUpwardMessages;
-    type PalletId = OctopusAppchainPalletId;
-    type ValidatorsProvider = OctopusAppchain;
+    type PalletId = OctopusPalletId;
     type WeightInfo = pallet_octopus_lpos::weights::SubstrateWeight<Runtime>;
 }
-
+parameter_types! {
+    pub const MaxMessagePayloadSize: u32 = 256;
+    pub const MaxMessagesPerCommit: u32 = 20;
+}
 impl pallet_octopus_upward_messages::Config for Runtime {
-    type Event = Event;
-    type Call = Call;
-    type UpwardMessagesLimit = UpwardMessagesLimit;
+    type RuntimeEvent = RuntimeEvent;
+    type Hashing = Keccak256;
+    type MaxMessagePayloadSize = MaxMessagePayloadSize;
+    type MaxMessagesPerCommit = MaxMessagesPerCommit;
     type WeightInfo = pallet_octopus_upward_messages::weights::SubstrateWeight<Runtime>;
 }
 
