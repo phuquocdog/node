@@ -3,7 +3,7 @@
 /// Edit this file to define custom logic or remove it if it is not needed.
 /// Learn more about FRAME and the core library of Substrate FRAME pallets:
 /// <https://docs.substrate.io/v3/runtime/frame>
-pub use pallet::*;
+pub use frame_system::pallet::*;
 
 #[cfg(test)]
 mod mock;
@@ -22,11 +22,10 @@ pub mod pallet {
 	#[pallet::config]
 	pub trait Config: frame_system::Config {
 		/// Because this pallet emits events, it depends on the runtime's definition of an event.
-		type Event: From<Event<Self>> + IsType<<Self as frame_system::Config>::Event>;
+		type RuntimeEvent: From<Event<Self>> + IsType<<Self as frame_system::Config>::RuntimeEvent>;
 	}
 
 	#[pallet::pallet]
-	#[pallet::generate_store(pub(super) trait Store)]
 	pub struct Pallet<T>(_);
 
 	#[pallet::storage]
@@ -99,7 +98,8 @@ pub mod pallet {
 	#[pallet::call]
 	impl<T: Config> Pallet<T> {
 
-		#[pallet::weight(10_000 + T::DbWeight::get().reads_writes(1,2))]
+		#[pallet::call_index(0)]
+		#[pallet::weight({50_000_000})]
         pub fn init(origin: OriginFor<T>, total_supply: u64) -> DispatchResult {
 
         	let sender = ensure_signed(origin)?;
@@ -113,7 +113,8 @@ pub mod pallet {
         	Self::deposit_event(Event::Initialized(sender));
         	Ok(().into())
 		}
-		#[pallet::weight(10_000 + T::DbWeight::get().reads_writes(1,2))]
+		#[pallet::call_index(1)]
+		#[pallet::weight({60_000_000})]
         pub fn transfer(origin: OriginFor<T>, to: T::AccountId, value: u64) -> DispatchResult {
         	let sender = ensure_signed(origin)?;
 
@@ -133,7 +134,8 @@ pub mod pallet {
 
 			Ok(().into())
 		}
-		#[pallet::weight(10_000 + T::DbWeight::get().reads_writes(1,2))]
+		#[pallet::call_index(2)]
+		#[pallet::weight({70_000_000})]
         pub fn approve(origin: OriginFor<T>, spender: T::AccountId, value: u64) -> DispatchResult {
         	let owner = ensure_signed(origin)?;
 
@@ -143,8 +145,8 @@ pub mod pallet {
 
 			Ok(().into())
 		}
-
-		#[pallet::weight(10_000 + T::DbWeight::get().reads_writes(1,2))]
+		#[pallet::call_index(3)]
+		#[pallet::weight({80_000_000})]
         pub fn transfer_from(origin: OriginFor<T>, owner: T::AccountId,to: T::AccountId, value: u64) -> DispatchResult {
 
         	let spender = ensure_signed(origin)?;
